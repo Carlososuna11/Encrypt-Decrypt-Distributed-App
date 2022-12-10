@@ -1,0 +1,2 @@
+cryptocode==0.1
+pyarrow<7.0.0,>=6.0.1
