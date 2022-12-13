@@ -6,8 +6,8 @@ import requests
 
 BACKEND_BASE_URL = 'http://ray_head:8000'
 
-INPUT_FILE_NAME = 'input.txt'
-OUTPUT_FILE_NAME = 'output.txt'
+INPUT_FILE_NAME = '/input.txt'
+OUTPUT_FILE_NAME = '/output.txt'
 
 
 def main():
@@ -77,3 +77,7 @@ def main():
             f.write('\n0')
 
         print("Integrity: ", response_data['verified'])
+
+
+if __name__ == '__main__':
+    main()
