@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  signature_backend:
+    build:
+      context: ./signature_backend
+    command: >
+      sh -c "python3 main.py"
+    volumes:
+      - ./signature_backend:/usr/src/app/
+      - ./files/database.txt:/usr/src/app/database.txt
+    depends_on:
+      - ray_head
+    env_file:
+      - ./.env
+
+  authentication_backend:
+    build:
+      context: ./authentication_backend
+    command: >
+      sh -c "python3 main.py"
+    volumes:
+      - ./authentication_backend:/usr/src/app/
+      - ./files/database.txt:/usr/src/app/database.txt
+    depends_on:
+      - ray_head
+    env_file:
+      - ./.env
+
+  client:
+    build:
+      context: ./client
+    volumes:
+      - ./client:/usr/src/app/
+      - ./files/input.txt:/input.txt
+      - ./files/output.txt:/output.txt
+    depends_on:
+      - signature_backend
+      - authentication_backend
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "8000:80"
+    depends_on:
+      - signature_backend
+      - authentication_backend
+      - ray_head
+
+  ray_head:
+    build:
+      context: ./ray
+    restart: always
+    command: >
+      sh -c "ray stop --force && ray start --head --block --dashboard-host 0.0.0.0"
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./files/database.txt:/database.txt
+    ports:
+      - 8265:8265

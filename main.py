@@ -1,5 +1,5 @@
 import ray
-from client.client import main
+from client.main import main
 
 if __name__ == '__main__':
     ray.init(address='auto')

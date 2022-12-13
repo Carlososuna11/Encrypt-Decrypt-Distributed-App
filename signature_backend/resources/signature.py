@@ -3,13 +3,20 @@ Servidor ray que contiene todo los métodos para encriptar usando md5 o sha256
 """
 import hashlib
 import cryptocode
-import ray
-import fcntl
+from filelock import FileLock
+from conf import settings
 from utils.password import generate_numeric_password
+from typing import Any
 
 
-@ray.remote
-class ServerEncrypt:
+class SignatureResource:
+
+    def __init__(self) -> None:
+        self._database = settings.DATABASE
+        self._lock = FileLock("database.txt.lock")
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.encrypt_md5(*args, **kwds)
 
     def _update_database(self, user_name: str, password: str):
         """
@@ -30,8 +37,9 @@ class ServerEncrypt:
 
         # read the dataset
         lines = []
-        with open("files/database.txt", "r") as f:
-            lines = f.readlines()
+        with self._lock:
+            with open(self._database, "r") as f:
+                lines = f.readlines()
 
         if len(lines) > 0 and lines[-1] in ["0", 0]:
             lines = lines[:-1]
@@ -46,15 +54,14 @@ class ServerEncrypt:
 
         # normalize \n
         for index, line in enumerate(lines):
-            if index==len(lines)-1:
+            if index == len(lines)-1:
                 continue
             lines[index] = line.strip() + "\n"
 
             # update the dataset
-        with open("files/database.txt", "w") as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            f.writelines(lines)
-            fcntl.flock(f, fcntl.LOCK_UN)
+        with self._lock:
+            with open(self._database, "w") as f:
+                f.writelines(lines)
 
     def _encrypt(
         self,
@@ -100,16 +107,13 @@ class ServerEncrypt:
             password
         )
 
-        # generate the output
-
-        with open(f'files/output_{user_name}.txt', 'w') as f:
-            f.write(f"{password}\n")
-            f.write(f"{text_encrypted}")
-
         # update the database
         self._update_database(user_name, password)
 
-        return text_encrypted, password
+        return {
+            "text_encrypted": text_encrypted,
+            "password": password,
+        }
 
     def encrypt_md5(
         self,
