@@ -19,6 +19,5 @@ RUN pip install --upgrade pip setuptools wheel
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 RUN pip install "ray[serve] @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-3.0.0.dev0-cp39-cp39-manylinux2014_x86_64.whl"
-
 # copy project
 COPY . .
