@@ -8,7 +8,6 @@ services:
       sh -c "python3 main.py"
     volumes:
       - ./signature_backend:/usr/src/app/
-      - ./files/database.txt:/usr/src/app/database.txt
     depends_on:
       - ray_head
     env_file:
@@ -21,7 +20,6 @@ services:
       sh -c "python3 main.py"
     volumes:
       - ./authentication_backend:/usr/src/app/
-      - ./files/database.txt:/usr/src/app/database.txt
     depends_on:
       - ray_head
     env_file:
