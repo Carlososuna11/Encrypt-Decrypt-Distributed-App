@@ -1,47 +1,79 @@
 # """
 # Client to encrypt a message reading a file
 # """
-# from utils.files import read_file
-# import requests
+from utils.files import read_file
+import requests
 
-# BACKEND_BASE_URL = 'http://ray_head:8000'
+BACKEND_BASE_URL = 'http://ray_head:8000'
 
-# INPUT_FILE_NAME = 'input.txt'
-# OUTPUT_FILE_NAME = 'output.txt'
+INPUT_FILE_NAME = 'input.txt'
+OUTPUT_FILE_NAME = 'output.txt'
 
 
-# def main():
+def main():
 
-#     # read the input file
-#     file_data = read_file(INPUT_FILE_NAME)
+    print('Starting client...')
 
-#     # get the type of the file
-#     file_type = file_data['type']
+    # read the input file
+    file_data = read_file(INPUT_FILE_NAME)
 
-#     # call the server
-#     if file_type == 'FIRMAR':
-#         # call the server to sign the message
-#         text_encrypted, password = ray.get(
-#             encryption_server.encrypt_md5.remote(
-#                 **file_data
-#             )
-#         )
-#         print(f'Text encrypted: {text_encrypted}')
-#         print(f'Password: {password}')
-#     elif file_type == 'AUTENTICAR':
-#         # call the server to authenticate the user
-#         authenticated = ray.get(
-#             verification_server.authenticate_user.remote(
-#                 **file_data
-#             )
-#         )
-#         print(f'Authenticated: {authenticated}')
+    # get the type of the file
+    file_type = file_data['type']
 
-#     elif file_type == 'INTEGRIDAD':
-#         # call the server to verify the integrity of the message
-#         integrity = ray.get(
-#             verification_server.verify_md5.remote(
-#                 **file_data
-#             )
-#         )
-#         print("Integrity: ", integrity)
+    # call the server
+    if file_type == 'FIRMAR':
+        # call the server to sign the message
+        response = requests.post(
+            f'{BACKEND_BASE_URL}/signature/',
+            json=file_data
+        )
+        response.raise_for_status()
+        response_data = response.json()
+
+        with open(OUTPUT_FILE_NAME, 'w') as f:
+            f.write(response_data['text_encrypted'])
+            f.write('\n')
+            f.write(response_data['password'])
+            f.write('\n0')
+
+        print(f'Text encrypted: {response_data["text_encrypted"]}')
+        print(f'Password: {response_data["password"]}')
+    elif file_type == 'AUTENTICAR':
+        # call the server to authenticate the user
+        response = requests.post(
+            f'{BACKEND_BASE_URL}/authentication/authenticate/',
+            json=file_data
+        )
+
+        response.raise_for_status()
+
+        response_data = response.json()
+
+        status_text = 'VALIDO' if response_data['authenticated'] \
+            else 'NO VALIDO'
+
+        with open(OUTPUT_FILE_NAME, 'w') as f:
+            f.write(status_text)
+            f.write('\n0')
+
+        print(f'Authenticated: {response_data["authenticated"]}')
+
+    elif file_type == 'INTEGRIDAD':
+        # call the server to verify the integrity of the message
+        response = requests.post(
+            f'{BACKEND_BASE_URL}/authentication/verify/',
+            json=file_data
+        )
+
+        response.raise_for_status()
+
+        response_data = response.json()
+
+        status_text = 'VALIDO' if response_data['verified'] \
+            else 'NO VALIDO'
+
+        with open(OUTPUT_FILE_NAME, 'w') as f:
+            f.write(status_text)
+            f.write('\n0')
+
+        print("Integrity: ", response_data['verified'])
