@@ -7,7 +7,7 @@ router = APIRouter(
     tags=["Authentication Server"],
 )
 
-
+# add the endpoints to the router
 router.add_api_route(
     path="/authenticate",
     endpoint=authenticate,

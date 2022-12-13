@@ -1,21 +1,31 @@
 """
 Servidor ray que contiene todo los métodos para encriptar usando md5 o sha256
 """
-import hashlib
-import cryptocode
-from filelock import FileLock
+import hashlib  # hashing
+import cryptocode  # encryption
+from filelock import FileLock   # mutual exclusion
 from conf import settings
 from utils.password import generate_numeric_password
 from typing import Any
 
 
 class SignatureResource:
+    """
+    Class that contains all the methods to encrypt using md5 or sha256
+
+    Use Cases:
+    1. Encrypt a text using md5 or sha256
+    2. Encrypt a text using md5 or sha256 and save the password in a database
+    """
 
     def __init__(self) -> None:
         self._database = settings.DATABASE
         self._lock = FileLock("database.txt.lock")
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
+        """
+        Calls the encrypt_md5 method
+        """
         return self.encrypt_md5(*args, **kwds)
 
     def _update_database(self, user_name: str, password: str):
@@ -37,13 +47,16 @@ class SignatureResource:
 
         # read the dataset
         lines = []
+        # blocks the file while reading
         with self._lock:
             with open(self._database, "r") as f:
                 lines = f.readlines()
 
+        # remove the last line if it is 0
         if len(lines) > 0 and lines[-1] in ["0", 0]:
             lines = lines[:-1]
 
+        # add the new user and password
         lines.extend(
             [
                 f"{password}\n",
@@ -59,7 +72,9 @@ class SignatureResource:
             lines[index] = line.strip() + "\n"
 
             # update the dataset
+        # blocks the file while writing
         with self._lock:
+            # write the dataset
             with open(self._database, "w") as f:
                 f.writelines(lines)
 
@@ -95,10 +110,14 @@ class SignatureResource:
 
         """
 
+        # generate the algorithm method from the algorithm key
         algorithm = hashlib.new(algorithm_key)
+        # make the hash
         algorithm.update(text_to_encrypt.encode('utf-8'))
+        # get the hash
         text_hash = algorithm.hexdigest()
 
+        # generate the password
         password = generate_numeric_password()
 
         # encrypt the hash
@@ -146,6 +165,7 @@ class SignatureResource:
 
         """
 
+        # call the encrypt method with the md5 algorithm
         return self._encrypt(
             text_to_encrypt,
             user_name,
@@ -185,6 +205,7 @@ class SignatureResource:
 
         """
 
+        # call the encrypt method with the sha256 algorithm
         return self._encrypt(
             text_to_encrypt,
             user_name,

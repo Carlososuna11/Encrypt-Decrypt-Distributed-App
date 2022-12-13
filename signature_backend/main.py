@@ -15,6 +15,7 @@ def get_application() -> FastAPI:
     :return: FastAPI application.
     """
 
+    # creates a fastAPI instance
     app = FastAPI(
         title=settings.PROJECT_NAME,
         description=settings.PROJECT_DESCRIPTION,
@@ -24,6 +25,7 @@ def get_application() -> FastAPI:
         redoc_url="/redoc",
     )
 
+    # adds CORS middleware
     app.add_middleware(
         CORSMiddleware,
         **settings.CORS_SETTINGS
@@ -36,30 +38,35 @@ def get_application() -> FastAPI:
     return app
 
 
+# set the environment variable to the settings module
 os.environ.setdefault('FASTAPI_CONFIG', 'core.settings')
 app = get_application()
 
 
+# create a Ray Serve deployment with the prefix /signature
 @serve.deployment(
     name="signature-backend",
     route_prefix="/signature"
 )
 @serve.ingress(app)
+# this class is needed to make Ray Serve work
 class FastAPIWrapper:
     pass
 
 
+# set the working directory to the root of the project
 runtime_env = {
     "working_dir": "/usr/src/app",
 }
 
-
+# start Ray Serve with the runtime environment
 with ray.init(
         address=settings.RAY_ADDRESS,
         runtime_env=runtime_env,
         namespace=str(uuid.uuid4())
 ):
 
+    # start the FastAPI application in the ray cluster
     serve.start(
         detached=True,
         http_options={
@@ -67,4 +74,5 @@ with ray.init(
             "port": 8000,
         }
     )
+    # deploy the FastAPI application
     FastAPIWrapper.deploy()

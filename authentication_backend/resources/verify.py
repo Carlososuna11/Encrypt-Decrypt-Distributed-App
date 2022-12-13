@@ -7,6 +7,9 @@ class VerifyResource:
     """
     Verify class
 
+    Use Cases:
+    1. Verify a text using md5
+    2. Verify a text using sha256
     """
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:

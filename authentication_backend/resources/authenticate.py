@@ -6,6 +6,9 @@ from filelock import FileLock
 class AuthenticateResource:
     """
     Authenticates a user
+
+    Use Cases:
+    1. Authenticate a user
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
