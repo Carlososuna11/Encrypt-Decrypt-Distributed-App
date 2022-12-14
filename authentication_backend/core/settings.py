@@ -15,6 +15,12 @@ PROJECT_DESCRIPTION = get_env('PROJECT_DESCRIPTION', '')
 PROJECT_VERSION = get_env('PROJECT_VERSION', '1.0.0')
 
 # Database information
-DATABASE = get_env('DATABASE', '/database.txt')
+DATABASE = get_env(
+    'DATABASE',
+    '/database.txt'
+)
 
-RAY_ADDRESS = get_env('RAY_ADDRESS', 'ray://ray_head:10001')
+RAY_ADDRESS = get_env(
+    'RAY_ADDRESS',
+    'ray://ray_head_authentication:10001'
+)

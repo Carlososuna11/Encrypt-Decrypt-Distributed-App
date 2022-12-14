@@ -72,20 +72,8 @@ root@server:~$ cd /opt/develop/app/
 
 2. Clone the repository
 
-3. Install git lfs see: https://github.com/git-lfs/git-lfs/wiki/Installation#ubuntu
+3. Run the project
 
 ```terminal
-user@server:~$ sudo curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-user@server:~$ sudo apt-get install git-lfs
-user@server:~$ cd /opt/develop/app/
-user@server:~/opt/develop/app/ $ git lfs init
-user@server:~/opt/develop/app/ $ git lfs pull
-```
-
-4. Set the .env vars
-
-5. Run the project
-
-```terminal
-user@server:~/opt/develop/app/$ docker-compose -f docker-compose.prod.yml up -d --build
+user@server:~/opt/develop/app/$ docker-compose up -d --build
 ```

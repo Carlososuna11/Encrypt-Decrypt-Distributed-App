@@ -9,9 +9,7 @@ services:
     volumes:
       - ./signature_backend:/usr/src/app/
     depends_on:
-      - ray_head
-    env_file:
-      - ./.env
+      - ray_head_signature
 
   authentication_backend:
     build:
@@ -21,9 +19,7 @@ services:
     volumes:
       - ./authentication_backend:/usr/src/app/
     depends_on:
-      - ray_head
-    env_file:
-      - ./.env
+      - ray_head_authentication
 
   client:
     build:
@@ -43,9 +39,10 @@ services:
     depends_on:
       - signature_backend
       - authentication_backend
-      - ray_head
+      - ray_head_authentication
+      - ray_head_signature
 
-  ray_head:
+  ray_head_signature:
     build:
       context: ./ray
     restart: always
@@ -54,5 +51,13 @@ services:
     volumes:
       - /dev/shm:/dev/shm
       - ./files/database.txt:/database.txt
-    ports:
-      - 8265:8265
+
+  ray_head_authentication:
+    build:
+      context: ./ray
+    restart: always
+    command: >
+      sh -c "ray stop --force && ray start --head --block --dashboard-host 0.0.0.0"
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./files/database.txt:/database.txt

@@ -1,2 +1,0 @@
-cryptocode==0.1
-ray==2.1.0

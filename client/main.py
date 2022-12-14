@@ -4,7 +4,7 @@
 from utils.files import read_file
 import requests
 
-BACKEND_BASE_URL = 'http://ray_head:8000'
+BACKEND_BASE_URL = 'http://nginx:80'
 
 INPUT_FILE_NAME = '/input.txt'
 OUTPUT_FILE_NAME = '/output.txt'
