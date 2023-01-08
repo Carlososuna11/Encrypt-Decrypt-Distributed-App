@@ -28,6 +28,7 @@ Icon
 
 files/
 files/**
+!/files/.gitkeep
 
 # Thumbnails
 ._*
