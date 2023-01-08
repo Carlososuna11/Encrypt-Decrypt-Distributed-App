@@ -65,7 +65,7 @@ runtime_env = {
 with ray.init(
         address=settings.RAY_ADDRESS,
         runtime_env=runtime_env,
-        namespace=str(uuid.uuid4())
+        namespace=str(uuid.uuid4()),
 ):
     # start the FastAPIWrapper deployment
     serve.start(
