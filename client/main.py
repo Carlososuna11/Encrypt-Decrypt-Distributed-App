@@ -31,9 +31,9 @@ def main():
         response_data = response.json()
 
         with open(OUTPUT_FILE_NAME, 'w') as f:
-            f.write(response_data['text_encrypted'])
-            f.write('\n')
             f.write(response_data['password'])
+            f.write('\n')
+            f.write(response_data['text_encrypted'])
             f.write('\n0')
 
         print(f'Text encrypted: {response_data["text_encrypted"]}')
@@ -69,8 +69,8 @@ def main():
 
         response_data = response.json()
 
-        status_text = 'VALIDO' if response_data['verified'] \
-            else 'NO VALIDO'
+        status_text = 'INTEGRO' if response_data['verified'] \
+            else 'NO INTEGRO'
 
         with open(OUTPUT_FILE_NAME, 'w') as f:
             f.write(status_text)
